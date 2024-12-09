@@ -1,29 +1,6 @@
 from aocd import data
 from utils.grid import Grid, C
 
-word = 'XMAS'
-
-g = Grid(data)
-
-def find_word_letters(pos, grid, remaining_word):
-	if not remaining_word: 
-		return True
-
-data = """MMMSXXMASM
-MSAMXMSMSA
-AMXSXMAAMM
-MSAMASMSMX
-XMASAMXAMM
-XXAMMXXAMA
-SMSMSASXSS
-SAXAMASAAA
-MAMMMXMMMM
-MXMXAXMASX"""
-visited = set([C(0,0)])
-found_word_locations = set()
-
-q = [C(0,0)]
-
 neighbors = [C(0,-1), C(-1,-1), C(-1,0), C(-1,1), C(0,1), C(1,1), C(1,0), C(1,-1)]
 
 def find_word(start_pos, neighbor_direction, grid, word):
@@ -33,23 +10,26 @@ def find_word(start_pos, neighbor_direction, grid, word):
 		checkword += grid[start_pos]
 		positions.add(start_pos)
 		start_pos += neighbor_direction
+	
 	if checkword == word:
 		return positions
 
-height, width = g.end_y - g.start_y, g.end_x - g.start_x
-correct = set()
-count = 0
-for r in range(height):
-	for c in range(width):
-		for n in neighbors: 
-			p = find_word(C(r,c), n, g, word)
-			if p: 
-				correct.update(p)
-				count += 1
-
-print('Part 1:', count)
+def part_1(g, word):
+	
+	height, width = g.end_y - g.start_y, g.end_x - g.start_x
+	correct = set()
+	count = 0
+	for r in range(height):
+		for c in range(width):
+			for n in neighbors: 
+				p = find_word(C(r,c), n, g, word)
+				if p: 
+					correct.update(p)
+					count += 1
+	return count
 
 def part_2(grid, word):
+	height, width = g.end_y - g.start_y, g.end_x - g.start_x
 	count = 0
 	# for every possible center
 	for r in range(1, height - 1):
@@ -62,4 +42,7 @@ def part_2(grid, word):
 
 	return count
 
+g = Grid(data)
+
+print('Part 1:', part_1(g, 'XMAS'))
 print('Part 2:', part_2(g, "MAS"))

@@ -4,10 +4,7 @@ from aocd import data
 
 matches, page_lists = [x.split('\n') for x in data.split('\n\n')]
 
-rules = []
-for line in matches:
-	a,b = line.split('|')
-	rules.append((a,b))
+rules = [(a,b) for line in matches for a,b in line.split('|')]
 
 incorrect_orders = []
 count = 0

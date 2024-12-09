@@ -14,7 +14,6 @@ def is_valid(nums, operators):
 			curr_value = int(str(curr_value) + str(line_nums[i]))
 	return curr_value == ans
 
-valid_p1 = 0
 def count_valid_lines():
 	valid_p1 = 0
 	valid_p2 = 0

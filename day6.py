@@ -1,59 +1,67 @@
 from aocd import data
-import sys
-
 from utils.grid import Grid, C
 
 def get_grid():
 
 	lines = data.split('\n')
 
-	for i in range(len(lines)):
-		if '^' in lines[i]:
-			guard_location = i, lines[i].index('^')
-
+	for i, line in enumerate(lines):
+		if '^' in line:
+			guard_position = i, line.index('^')
+			break
 
 	g = Grid('\n'.join(lines))
-	return g, C(*guard_location)
+	return g, C(*guard_position)
 
-g, guard_location = get_grid()
+# get grid and guard location
+g, guard_pos = get_grid()
+
+# guard movement tracking
+next_step = {0: C(-1,0), 1:C(0,1), 2:C(1,0), 3:C(0,-1)}
+visited = set([guard_pos])
 current_dir = 0
-next_pos = {0: C(-1,0), 1:C(0,1), 2:C(1,0), 3:C(0,-1)}
-visited = set([guard_location])
-while guard_location + next_pos[current_dir] in g:
-	if g[guard_location + next_pos[current_dir]] == '#':
+
+# patrol until guard exits grid
+while guard_pos + next_step[current_dir] in g:
+	if g[guard_pos + next_step[current_dir]] == '#':
 		current_dir = (current_dir+1)%4
 
-	guard_location = guard_location + next_pos[current_dir]
-	visited.add(guard_location)
+	guard_pos = guard_pos + next_step[current_dir]
+	visited.add(guard_pos)
 
 print('Part 1:', len(visited))
+
+
+# part 2
 neighbors = [C(-1,0), C(0,1), C(1,0), C(0,-1)]
 potential_obstacle_locations = visited
-
-
 width, height = g.size()
 infinite_count = 0
 num = height * width
 i = 0
-for loc in potential_obstacle_locations:
-	print(f'Part 2: Loading ... {i // 53.2 + 1:.0f}%', end="\r")
-	sys.stdout.flush()
-	cached_turns, current_dir = set([]), 0
-	g, guard_location = get_grid()
+
+for i, loc in enumerate(potential_obstacle_locations):
+	print(f'Part 2: Loading ... {i / num * 100:.0f}%', end="\r")
+
+	# reset grid and locations
+	g, guard_pos = get_grid()
 	g[loc] = '#'
 
-	while guard_location + next_pos[current_dir] in g:
-		if g[guard_location + next_pos[current_dir]] == '#':
-			if (guard_location + next_pos[current_dir], current_dir) in cached_turns:
+	# set up cache to detect loops
+	cached_turns, current_dir = set([]), 0
+
+	# keep moving until a turn repeats
+	while guard_pos + next_step[current_dir] in g:
+		new_guard_pos = guard_pos + next_step[current_dir]
+		if g[new_guard_pos] == '#':
+			if (new_guard_pos, current_dir) in cached_turns:
 				infinite_count += 1
 				break
-			cached_turns.add((guard_location + next_pos[current_dir], current_dir))
+			cached_turns.add((new_guard_pos, current_dir))
 			current_dir = (current_dir+1)%4
 		
 		else:
-			guard_location += next_pos[current_dir]
-	i += 1
+			guard_pos = new_guard_pos
 
-
-print('\r                                          ', end='\r')	
+print('\r' + ' ' * 40, end='\r')	
 print('Part 2:', infinite_count)
